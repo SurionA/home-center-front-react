@@ -1,71 +1,101 @@
+import moment from 'moment';
 import React from 'react';
-import {Chart} from 'react-google-charts';
+import { Chart } from 'react-google-charts';
+import getHomeHydrometries from './homeapi';
 import {
   MainTextColor,
   BgChartColor,
   InsideLineColor,
-  OutsideLineColor } from './Color.jsx';
-
-let data = JSON.parse('[["14",100,"100%",38,"38%"],["15",98,"98%",38,"38%"],["16",98,"98%",38,"38%"],["17",99,"99%",39,"39%"],["18",99,"99%",39,"39%"],["19",99,"99%",39,"39%"],["20",99,"99%",43,"43%"],["21",99,"99%",44,"44%"],["22",99,"99%",44,"44%"],["23",100,"100%",44,"44%"],["00",100,"100%",44,"44%"],["01",99,"99%",45,"45%"],["02",99,"99%",45,"45%"],["03",99,"99%",44,"44%"],["04",99,"99%",44,"44%"],["05",99,"99%",44,"44%"],["06",99,"99%",44,"44%"],["07",99,"99%",44,"44%"],["08",99,"99%",43,"43%"],["09",98,"98%",45,"45%"],["10",96,"96%",44,"44%"],["11",93,"93%",44,"44%"],["12",93,"93%",44,"44%"],["13",94,"94%",44,"44%"]]');
+  OutsideLineColor } from './Color';
 
 class HumidityChart extends React.Component {
-  constructor(props){
+  constructor(props) {
     super(props);
-    this.chartEvents=[
+    this.chartEvents = [
       {
-        eventName : 'select',
-        callback  : function(Chart) {
-            // Returns Chart so you can access props and  the ChartWrapper object from chart.wrapper
-            console.log("Selected ",Chart.chart.getSelection());
-        }
-      }
+        eventName: 'select',
+        callback: (element) => {
+          console.log('Selected ', element.chart.getSelection());
+        },
+      },
     ];
-    this.state={
+
+    this.state = {
       options: {
         title: 'Daily Humidity',
         titleTextStyle: {
-          color: MainTextColor
+          color: MainTextColor,
         },
         backgroundColor: {
-          fill:BgChartColor
+          fill: BgChartColor,
         },
-        legend:{
+        legend: {
           position: 'bottom',
-          textStyle:{color: MainTextColor}
+          textStyle: { color: MainTextColor },
         },
         series: {
           0: { color: OutsideLineColor },
-          1: { color: InsideLineColor }
+          1: { color: InsideLineColor },
         },
-        hAxis: {textStyle:{color: MainTextColor}},
-        vAxis: {minValue: 0, maxValue: 105, baselineColor: MainTextColor, gridlineColor: MainTextColor, textStyle:{color: MainTextColor}},
+        hAxis: {
+          titleTextStyle: { color: MainTextColor },
+          textStyle: { color: MainTextColor },
+        },
+        vAxis: {
+          viewWindowMode: 'explicit',
+          viewWindow: { max: 100, min: 0 },
+          baselineColor: MainTextColor,
+          gridlineColor: MainTextColor,
+          textStyle: { color: MainTextColor },
+        },
+        axes: {
+          x: {
+            0: {
+              side: 'top',
+              label: 'Percentage',
+              textStyle: { color: MainTextColor },
+            },
+          },
+        },
       },
-      rows: data,
+      rows: false,
       columns: [
         {
-          'type': 'string',
-          'label' : 'Hours'
+          type: 'string',
+          label: 'Hours',
         },
         {
-          'type' : 'number',
-          'label' : 'Outside'
+          type: 'number',
+          label: 'Outside',
         },
         {
-          'type': 'string',
-          'role': 'tooltip'
+          type: 'string',
+          role: 'tooltip',
         },
         {
-          'type' : 'number',
-          'label' : 'Inside'
+          type: 'number',
+          label: 'Inside',
         },
         {
-          'type': 'string',
-          'role': 'tooltip'
-        }
-      ]
-    }
+          type: 'string',
+          role: 'tooltip',
+        },
+      ],
+    };
   }
-  render() {
+
+  componentDidMount() {
+    getHomeHydrometries().then((json) => {
+      json.sort((a, b) => moment(a.createdAt) - moment(b.createdAt));
+      const humArray = [];
+      json.forEach(hydrometry => humArray.push([`${moment(hydrometry.createdAt).format('HH')}h`, hydrometry.outside_humidity, `${hydrometry.outside_humidity}%`, hydrometry.inside_humidity, `${hydrometry.inside_humidity}%`]));
+      this.setState({
+        rows: humArray,
+      });
+    });
+  }
+
+  renderHumChart() {
     return (
       <Chart
         chartType="LineChart"
@@ -76,8 +106,17 @@ class HumidityChart extends React.Component {
         width="75vw"
         height="200px"
         chartEvents={this.chartEvents}
-       />
+      />
     );
   }
-};
+
+  render() {
+    const { rows } = this.state;
+    if (rows) {
+      return (this.renderHumChart());
+    }
+    return (<div />);
+  }
+}
+
 export default HumidityChart;

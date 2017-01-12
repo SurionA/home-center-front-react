@@ -21,6 +21,7 @@ class TemperatureChart extends React.Component {
     ];
 
     this.state = {
+      daysToShow: this.props.daysToShow,
       options: {
         title: 'Daily Temperatures',
         titleTextStyle: {
@@ -100,6 +101,25 @@ class TemperatureChart extends React.Component {
     });
   }
 
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.daysToShow !== this.state.daysToShow) {
+      this.setState({ daysToShow: nextProps.daysToShow });
+      getHomeHydrometries(nextProps.daysToShow).then((json) => {
+        json.sort((a, b) => moment(a.createdAt) - moment(b.createdAt));
+        const tempArray = [];
+        json.forEach((hydrometry) => {
+          const dateLabel = `${moment(hydrometry.createdAt).format('DD/MM')} at ${moment(hydrometry.createdAt).format('HH')}h`;
+          const xDateLabel = `${moment(hydrometry.createdAt).format('HH')}h`;
+          tempArray.push([`${xDateLabel}`, hydrometry.outside_temperature, `${dateLabel} \n ${hydrometry.outside_temperature}°C`, hydrometry.inside_temperature, `${dateLabel} \n ${hydrometry.inside_temperature}°C`]);
+        });
+
+        this.setState({
+          rows: tempArray,
+        });
+      });
+    }
+  }
+
   renderTempChart() {
     return (
       <Chart
@@ -123,5 +143,13 @@ class TemperatureChart extends React.Component {
     return (<div />);
   }
 }
+
+TemperatureChart.propTypes = {
+  daysToShow: React.PropTypes.string,
+};
+
+TemperatureChart.defaultProps = {
+  daysToShow: 1,
+};
 
 export default TemperatureChart;

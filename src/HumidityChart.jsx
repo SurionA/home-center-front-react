@@ -21,6 +21,7 @@ class HumidityChart extends React.Component {
     ];
 
     this.state = {
+      daysToShow: this.props.daysToShow,
       options: {
         title: 'Daily Humidity',
         titleTextStyle: {
@@ -99,6 +100,24 @@ class HumidityChart extends React.Component {
     });
   }
 
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.daysToShow !== this.state.daysToShow) {
+      this.setState({ daysToShow: nextProps.daysToShow });
+      getHomeHydrometries(nextProps.daysToShow).then((json) => {
+        json.sort((a, b) => moment(a.createdAt) - moment(b.createdAt));
+        const humArray = [];
+        json.forEach((hydrometry) => {
+          const dateLabel = `${moment(hydrometry.createdAt).format('DD/MM')} at ${moment(hydrometry.createdAt).format('HH')}h`;
+          const xDateLabel = `${moment(hydrometry.createdAt).format('HH')}h`;
+          humArray.push([`${xDateLabel}`, hydrometry.outside_humidity, `${dateLabel} \n ${hydrometry.outside_humidity}%`, hydrometry.inside_humidity, `${dateLabel} \n ${hydrometry.inside_humidity}%`]);
+        });
+        this.setState({
+          rows: humArray,
+        });
+      });
+    }
+  }
+
   renderHumChart() {
     return (
       <Chart
@@ -122,5 +141,13 @@ class HumidityChart extends React.Component {
     return (<div />);
   }
 }
+
+HumidityChart.propTypes = {
+  daysToShow: React.PropTypes.string,
+};
+
+HumidityChart.defaultProps = {
+  daysToShow: 1,
+};
 
 export default HumidityChart;

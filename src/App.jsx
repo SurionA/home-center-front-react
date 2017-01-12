@@ -1,4 +1,5 @@
 import React from 'react';
+import ChartContainer from './ChartContainer';
 import { MainTitle } from './HtmlElement';
 import {
   MainBgColor,
@@ -20,9 +21,7 @@ function App() {
   return (
     <div style={style}>
       <MainTitle>Home Monitor</MainTitle>
-      <div id="temperature-chart" />
-      <br />
-      <div id="humidity-chart" />
+      <ChartContainer />
     </div>
   );
 }

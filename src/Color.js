@@ -1,4 +1,4 @@
-export const MainTextColor = '#E6E1E3';
+export const MainTextColor = 'b9b6b7';//'#E6E1E3';
 export const MainBgColor = '#242430';
 export const MainLightBgColor = '#4d497d';
 export const BgChartColor = '#242430';

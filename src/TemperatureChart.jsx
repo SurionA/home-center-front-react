@@ -88,7 +88,11 @@ class TemperatureChart extends React.Component {
     getHomeHydrometries().then((json) => {
       json.sort((a, b) => moment(a.createdAt) - moment(b.createdAt));
       const tempArray = [];
-      json.forEach(hydrometry => tempArray.push([`${moment(hydrometry.createdAt).format('HH')}h`, hydrometry.outside_temperature, `${hydrometry.outside_temperature}°C`, hydrometry.inside_temperature, `${hydrometry.inside_temperature}°C`]));
+      json.forEach((hydrometry) => {
+        const dateLabel = `${moment(hydrometry.createdAt).format('DD/MM')} at ${moment(hydrometry.createdAt).format('HH')}h`;
+        const xDateLabel = `${moment(hydrometry.createdAt).format('HH')}h`;
+        tempArray.push([`${xDateLabel}`, hydrometry.outside_temperature, `${dateLabel} \n ${hydrometry.outside_temperature}°C`, hydrometry.inside_temperature, `${dateLabel} \n ${hydrometry.inside_temperature}°C`]);
+      });
 
       this.setState({
         rows: tempArray,

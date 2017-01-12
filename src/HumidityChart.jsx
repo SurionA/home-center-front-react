@@ -88,7 +88,11 @@ class HumidityChart extends React.Component {
     getHomeHydrometries().then((json) => {
       json.sort((a, b) => moment(a.createdAt) - moment(b.createdAt));
       const humArray = [];
-      json.forEach(hydrometry => humArray.push([`${moment(hydrometry.createdAt).format('HH')}h`, hydrometry.outside_humidity, `${hydrometry.outside_humidity}%`, hydrometry.inside_humidity, `${hydrometry.inside_humidity}%`]));
+      json.forEach((hydrometry) => {
+        const dateLabel = `${moment(hydrometry.createdAt).format('DD/MM')} at ${moment(hydrometry.createdAt).format('HH')}h`;
+        const xDateLabel = `${moment(hydrometry.createdAt).format('HH')}h`;
+        humArray.push([`${xDateLabel}`, hydrometry.outside_humidity, `${dateLabel} \n ${hydrometry.outside_humidity}%`, hydrometry.inside_humidity, `${dateLabel} \n ${hydrometry.inside_humidity}%`]);
+      });
       this.setState({
         rows: humArray,
       });

@@ -1,5 +1,6 @@
 import React from 'react';
 import ChartContainer from './ChartContainer';
+import RadianChartContainer from './RadianChartContainer';
 import { MainTitle } from './HtmlElement';
 import {
   MainBgColor,
@@ -21,6 +22,7 @@ function App() {
   return (
     <div style={style}>
       <MainTitle>Home Monitor</MainTitle>
+      <RadianChartContainer />
       <ChartContainer />
     </div>
   );
